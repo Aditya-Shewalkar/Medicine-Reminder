@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medicine_reminder/constants/colors.dart';
+import 'package:medicine_reminder/db/db.dart';
 import 'package:medicine_reminder/modules/add_medicine/add_medicine_screen.dart';
 import 'package:medicine_reminder/riverpod/riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
+
+import 'models/medicine.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,8 +16,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String med_name = "med";
   @override
   Widget build(BuildContext context) {
+    print("here2");
     return Consumer(
       builder: (BuildContext context, WidgetRef ref, Widget? child) {
         final homeScreenLogic = ref.watch(homeScreenProvider);
@@ -31,6 +36,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   homeScreenLogic.changeFormat(format);
                 },
               ),
+              ElevatedButton(
+                  onPressed: () async {
+                    homeScreenLogic.getMedDetails(1);
+                  },
+                  child: const Text("Get Medicines")),
+              Text(homeScreenLogic.med == null
+                  ? "med"
+                  : homeScreenLogic.med!.name!),
               const Expanded(
                   child: SizedBox(
                 height: 10,
