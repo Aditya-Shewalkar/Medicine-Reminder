@@ -36,6 +36,7 @@ dependencies:
   dio:
   retrofit:
   shimmer:
+  intl:
   table_calendar:
   async_loader:
     git:

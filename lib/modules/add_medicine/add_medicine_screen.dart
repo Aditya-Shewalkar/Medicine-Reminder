@@ -4,6 +4,7 @@ import 'package:medicine_reminder/constants/colors.dart';
 import 'package:medicine_reminder/modules/home/models/med_time.dart';
 import 'package:medicine_reminder/modules/home/models/medicine.dart';
 import 'package:medicine_reminder/riverpod/riverpod.dart';
+import 'package:intl/intl.dart';
 
 class AddMedicineScreen extends StatefulWidget {
   const AddMedicineScreen({super.key});
@@ -25,6 +26,18 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
               style: TextStyle(fontFamily: "PS", fontSize: 18),
             ),
           ),
+          bottomNavigationBar: ElevatedButton(
+              onPressed: () {
+                Medicine m1 =
+                    Medicine(name: "Crocin", type: "Pill", quantity: 2);
+                MedTime mt1 =
+                    MedTime(dateTime: DateTime(DateTime.now().hour + 3), fk: 1);
+                addMedLogic.createReminder(m1, mt1);
+              },
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text("Add Reminder"),
+              )),
           body: SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,15 +121,17 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
                 const Expanded(
                   child: SizedBox(height: 10),
                 ),
-                ElevatedButton(
-                    onPressed: () {
-                      Medicine m1 = Medicine(
-                          id: 1, name: "Crocin", type: "Pill", quantity: 2);
-                      MedTime mt1 =
-                          MedTime(id: 101, dateTime: DateTime.now(), fk: 1);
-                      addMedLogic.createReminder(m1, mt1);
-                    },
-                    child: const Text("Add Reminder")),
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        await addMedLogic.selectDate(context);
+                      },
+                      child: Text(
+                          formatDate(addMedLogic.pickedDate ?? DateTime.now())),
+                    )
+                  ],
+                )
               ],
             ),
           ),
@@ -124,4 +139,13 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
       },
     );
   }
+}
+
+String formatDate(DateTime date) {
+  // Create a date format pattern to display only the date part
+  final DateFormat formatter =
+      DateFormat('yyyy-MM-dd'); // You can customize the format as needed
+
+  // Format the DateTime object and return the formatted string
+  return formatter.format(date);
 }

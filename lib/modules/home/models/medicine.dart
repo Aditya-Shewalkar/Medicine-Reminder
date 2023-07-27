@@ -15,7 +15,7 @@ class Medicine {
   int? quantity;
 
   Medicine(
-      {required this.id,
+      {this.id,
       required this.name,
       required this.type,
       required this.quantity});
