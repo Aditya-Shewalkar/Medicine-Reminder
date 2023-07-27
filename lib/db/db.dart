@@ -1,5 +1,6 @@
 // ignore: depend_on_referenced_packages
 import 'package:medicine_reminder/modules/home/models/med_time.dart';
+import 'package:medicine_reminder/modules/home/models/result_model.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import '../modules/home/models/medicine.dart';
@@ -72,14 +73,39 @@ class MedicineDatabase {
 
   Future<List<MedTime>> readMedTime(int fk) async {
     final db = await getDatabase();
+
     final maps = await db.query(medTimeTable,
         columns: MedTimeFields.values,
         where: '${MedTimeFields.fk} = ?',
+        orderBy: MedTimeFields.dateTime, //new line
         whereArgs: [fk]);
     if (maps.isNotEmpty) {
+      print(maps.toList());
       return maps.map((json) => MedTime.fromJson(json)).toList();
     } else {
       throw Exception('No Such FK exists');
+    }
+  }
+
+  Future<List<ResultModel>> getListOfMeds() async {
+    final db = await getDatabase();
+
+    final maps = await db.rawQuery(""" 
+    SELECT * FROM $medicineTable,$medTimeTable
+    WHERE ${medicineTable}.${MedicineFields.id} = ${medTimeTable}.${MedTimeFields.fk} AND
+    ${MedTimeFields.dateTime} >= ${DateTime.now().toIso8601String()}
+    """);
+    if (maps.isNotEmpty) {
+      return maps
+          .map((json) => ResultModel(
+              dateTime: DateTime.parse(json[MedTimeFields.dateTime] as String),
+              fk: json[MedTimeFields.fk] as int,
+              name: json[MedicineFields.name] as String,
+              quantity: json[MedicineFields.quantity] as int,
+              type: json[MedicineFields.type] as String))
+          .toList();
+    } else {
+      throw Exception("No Medicine TOday exceptio in getListOfMeds() code");
     }
   }
 

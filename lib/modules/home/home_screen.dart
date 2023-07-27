@@ -1,3 +1,4 @@
+import 'package:async_loader/async_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medicine_reminder/constants/colors.dart';
@@ -16,7 +17,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String med_name = "med";
+  Medicine? med;
+
   @override
   Widget build(BuildContext context) {
     print("here2");
@@ -41,39 +43,37 @@ class _HomeScreenState extends State<HomeScreen> {
                     homeScreenLogic.getMedDetails(1);
                   },
                   child: const Text("Get Medicines")),
-              Text(homeScreenLogic.med == null
-                  ? "med"
-                  : homeScreenLogic.med!.name!),
-              const Expanded(
-                  child: SizedBox(
-                height: 10,
-              )),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const AddMedicineScreen(),
-                            ),
-                          );
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text.rich(TextSpan(
-                              text: "Add Medicine   ",
-                              style: TextStyle(fontFamily: 'PR', fontSize: 16),
-                              children: [WidgetSpan(child: Icon(Icons.add))])),
-                        ))
-                  ],
-                ),
-              )
+              Expanded(
+                  child: AsyncLoader(
+                initState: () async =>
+                    {med = await homeScreenLogic.getMedDetails(1)},
+                renderError: ([error]) {
+                  return Center(
+                    child: Text(error.toString()),
+                  );
+                },
+                renderLoad: () {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                },
+                renderSuccess: ({data}) {
+                  return Center(
+                    child: Text(med!.name!),
+                  );
+                },
+              ))
             ],
           )),
+          floatingActionButton: FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddMedicineScreen(),
+                    ));
+              },
+              label: Text("Add Medicine")),
         );
       },
     );
