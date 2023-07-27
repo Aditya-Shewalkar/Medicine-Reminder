@@ -13,7 +13,6 @@ class HomeScreenRepo extends ChangeNotifier {
   }
 
   getMedDetails(id) async {
-    med = await MedicineDatabase.instance.readMedicine(id);
-    notifyListeners();
+    return await MedicineDatabase.instance.readMedicine(id);
   }
 }
