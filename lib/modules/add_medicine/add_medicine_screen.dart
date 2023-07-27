@@ -131,7 +131,7 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
                           formatDate(addMedLogic.pickedDate ?? DateTime.now())),
                     )
                   ],
-                )
+                ),
               ],
             ),
           ),
