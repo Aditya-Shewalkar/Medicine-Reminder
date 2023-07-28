@@ -9,17 +9,22 @@ import 'package:table_calendar/table_calendar.dart';
 
 import 'models/medicine.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  Medicine? med;
-
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
+  void didChangeDependencies() async {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    final homeScreenLogic = ref.watch(homeScreenProvider);
+    await homeScreenLogic.getMedDetails();
+  }
+
   Widget build(BuildContext context) {
     print("here2");
     return Consumer(
@@ -40,26 +45,28 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               ElevatedButton(
                   onPressed: () async {
-                    homeScreenLogic.getMedDetails(1);
+                    homeScreenLogic.getMedDetails();
                   },
                   child: const Text("Get Medicines")),
               Expanded(
                   child: AsyncLoader(
-                initState: () async =>
-                    {med = await homeScreenLogic.getMedDetails(1)},
+                initState: () async => {await homeScreenLogic.getMedDetails()},
                 renderError: ([error]) {
                   return Center(
                     child: Text(error.toString()),
                   );
                 },
                 renderLoad: () {
-                  return Center(
+                  return const Center(
                     child: CircularProgressIndicator(),
                   );
                 },
                 renderSuccess: ({data}) {
-                  return Center(
-                    child: Text(med!.name!),
+                  return ListView.builder(
+                    itemCount: homeScreenLogic.reminderList.length,
+                    itemBuilder: (context, index) {
+                      return Text(homeScreenLogic.reminderList[index].name!);
+                    },
                   );
                 },
               ))
@@ -73,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       builder: (context) => AddMedicineScreen(),
                     ));
               },
-              label: Text("Add Medicine")),
+              label: const Text("Add Medicine")),
         );
       },
     );

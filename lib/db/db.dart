@@ -91,9 +91,8 @@ class MedicineDatabase {
     final db = await getDatabase();
 
     final maps = await db.rawQuery(""" 
-    SELECT * FROM $medicineTable,$medTimeTable
-    WHERE ${medicineTable}.${MedicineFields.id} = ${medTimeTable}.${MedTimeFields.fk} AND
-    ${MedTimeFields.dateTime} >= ${DateTime.now().toIso8601String()}
+    SELECT ${MedTimeFields.dateTime},${MedTimeFields.fk},${MedicineFields.name},${MedicineFields.quantity},${MedicineFields.type} FROM $medicineTable,$medTimeTable
+    WHERE ${medicineTable}.${MedicineFields.id} = ${medTimeTable}.${MedTimeFields.fk}
     """);
     if (maps.isNotEmpty) {
       return maps

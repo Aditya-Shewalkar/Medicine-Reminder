@@ -29,7 +29,7 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
           bottomNavigationBar: ElevatedButton(
               onPressed: () {
                 Medicine m1 =
-                    Medicine(name: "Crocin", type: "Pill", quantity: 2);
+                    Medicine(name: "Paracetamol", type: "Pill", quantity: 2);
                 MedTime mt1 =
                     MedTime(dateTime: DateTime(DateTime.now().hour + 3), fk: 1);
                 addMedLogic.createReminder(m1, mt1);
