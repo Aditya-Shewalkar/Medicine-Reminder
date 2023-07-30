@@ -108,6 +108,28 @@ class MedicineDatabase {
     }
   }
 
+  Future<List<ResultModel>> getListOfMeds2() async {
+    final db = await getDatabase();
+
+    final maps = await db.rawQuery(""" 
+    SELECT ${MedTimeFields.dateTime},${MedTimeFields.fk},${MedicineFields.name},${MedicineFields.quantity},${MedicineFields.type} FROM $medicineTable,$medTimeTable
+    WHERE ${medicineTable}.${MedicineFields.id} = ${medTimeTable}.${MedTimeFields.fk}
+    AND  strftime('%Y-%m-%d %H:%M:%S', ${medTimeTable}.${MedTimeFields.dateTime}) >= DATETIME('now');
+    """);
+    if (maps.isNotEmpty) {
+      return maps
+          .map((json) => ResultModel(
+              dateTime: DateTime.parse(json[MedTimeFields.dateTime] as String),
+              fk: json[MedTimeFields.fk] as int,
+              name: json[MedicineFields.name] as String,
+              quantity: json[MedicineFields.quantity] as int,
+              type: json[MedicineFields.type] as String))
+          .toList();
+    } else {
+      return <ResultModel>[];
+    }
+  }
+
   Future close() async {
     final db = await instance.getDatabase();
     db.close();

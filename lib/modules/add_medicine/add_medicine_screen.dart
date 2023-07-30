@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:medicine_reminder/constants/colors.dart';
 import 'package:medicine_reminder/modules/home/models/med_time.dart';
 import 'package:medicine_reminder/modules/home/models/medicine.dart';
 import 'package:medicine_reminder/riverpod/riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:medicine_reminder/utils/utils.dart';
 
 class AddMedicineScreen extends StatefulWidget {
   const AddMedicineScreen({super.key});
@@ -28,15 +30,27 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
           ),
           bottomNavigationBar: ElevatedButton(
               onPressed: () {
-                Medicine m1 =
-                    Medicine(name: "Paracetamol", type: "Pill", quantity: 2);
-                MedTime mt1 =
-                    MedTime(dateTime: DateTime(DateTime.now().hour + 3), fk: 1);
+                Medicine m1 = Medicine(
+                    name: addMedLogic.medNameController.text.trim(),
+                    type: addMedLogic.selectedMedType,
+                    quantity: int.tryParse(
+                        addMedLogic.medAmountController.text.trim()));
+                MedTime mt1 = MedTime(
+                  dateTime: DateTime(
+                      addMedLogic.pickedDate!.year,
+                      addMedLogic.pickedDate!.month,
+                      addMedLogic.pickedDate!.day,
+                      addMedLogic.pickedTime!.hour,
+                      addMedLogic.pickedTime!.minute),
+                );
                 addMedLogic.createReminder(m1, mt1);
               },
               child: const Padding(
                 padding: EdgeInsets.all(8.0),
-                child: Text("Add Reminder"),
+                child: Text(
+                  "Add Reminder",
+                  style: TextStyle(fontFamily: "PM", fontSize: 18),
+                ),
               )),
           body: SafeArea(
             child: Column(
@@ -100,7 +114,7 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
                     inactiveColor: AppColor.whiteColor,
                     thumbColor: AppColor.primaryColor,
                     value: addMedLogic.sliderValue,
-                    min: 0,
+                    min: 1,
                     max: 90,
                     //label: addMedLogic.sliderValue.round().toString(),
                     onChanged: (newValue) {
@@ -118,19 +132,124 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
                     ],
                   ),
                 ),
-                const Expanded(
-                  child: SizedBox(height: 10),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    "Medicine Type:",
+                    style: TextStyle(fontFamily: "PM", fontSize: 18),
+                  ),
                 ),
-                Row(
-                  children: [
-                    ElevatedButton(
-                      onPressed: () async {
-                        await addMedLogic.selectDate(context);
-                      },
-                      child: Text(
-                          formatDate(addMedLogic.pickedDate ?? DateTime.now())),
-                    )
-                  ],
+                Expanded(
+                    child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: LazyLoadScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: 5,
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            onTap: () {
+                              addMedLogic.changeMedType(
+                                  addMedLogic.medTypeList[index].medTypeName);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(15)),
+                                    border: Border.all(
+                                        color: (addMedLogic.medTypeList[index]
+                                                    .medTypeName ==
+                                                addMedLogic.selectedMedType)
+                                            ? AppColor.primaryColor
+                                            : AppColor.whiteColor)),
+                                child: Column(
+                                  children: [
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.3,
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.15,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(3.0),
+                                        child: Image(
+                                            fit: BoxFit.scaleDown,
+                                            image: AssetImage(addMedLogic
+                                                .medTypeList[index].img)),
+                                      ),
+                                    ),
+                                    Text(
+                                      addMedLogic
+                                          .medTypeList[index].medTypeName,
+                                      style: const TextStyle(
+                                          fontFamily: "PS", fontSize: 15),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                    onEndOfPage: () {},
+                  ),
+                )),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Select Date"),
+                          ElevatedButton(
+                            onPressed: () async {
+                              await addMedLogic.selectDate(context);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 12, horizontal: 5),
+                              child: Text.rich(TextSpan(
+                                  text:
+                                      "${Utilities.formatDate(addMedLogic.pickedDate ?? DateTime.now())}   ",
+                                  style: const TextStyle(fontSize: 16),
+                                  children: const [
+                                    WidgetSpan(
+                                        child: Icon(Icons.calendar_month)),
+                                  ])),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Select Time"),
+                          ElevatedButton(
+                              onPressed: () async {
+                                await addMedLogic.selectTime(context);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 5),
+                                child: Text.rich(TextSpan(
+                                    text:
+                                        "${Utilities.formatTime(addMedLogic.pickedTime ?? TimeOfDay.now())}   ",
+                                    style: const TextStyle(fontSize: 16),
+                                    children: const [
+                                      WidgetSpan(
+                                          child: Icon(
+                                        Icons.timer,
+                                      ))
+                                    ])),
+                              )),
+                        ],
+                      )
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -139,13 +258,4 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
       },
     );
   }
-}
-
-String formatDate(DateTime date) {
-  // Create a date format pattern to display only the date part
-  final DateFormat formatter =
-      DateFormat('yyyy-MM-dd'); // You can customize the format as needed
-
-  // Format the DateTime object and return the formatted string
-  return formatter.format(date);
 }

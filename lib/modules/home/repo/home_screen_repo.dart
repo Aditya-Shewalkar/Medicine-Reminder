@@ -15,6 +15,16 @@ class HomeScreenRepo extends ChangeNotifier {
 
   getMedDetails() async {
     reminderList = await MedicineDatabase.instance.getListOfMeds();
+    List<ResultModel> tempList = <ResultModel>[];
+    for (int i = 0; i < reminderList.length; i++) {
+      //print(DateTime.now());
+      //print("rl-");
+      //print(reminderList[i].dateTime);
+      if (DateTime.now().compareTo(reminderList[i].dateTime!) <= 0) {
+        tempList.add(reminderList[i]);
+      }
+    }
+    reminderList = tempList;
     notifyListeners();
   }
 }

@@ -5,6 +5,7 @@ import 'package:medicine_reminder/constants/colors.dart';
 import 'package:medicine_reminder/db/db.dart';
 import 'package:medicine_reminder/modules/add_medicine/add_medicine_screen.dart';
 import 'package:medicine_reminder/riverpod/riverpod.dart';
+import 'package:medicine_reminder/utils/utils.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import 'models/medicine.dart';
@@ -45,7 +46,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               ElevatedButton(
                   onPressed: () async {
-                    homeScreenLogic.getMedDetails();
+                    await homeScreenLogic.getMedDetails();
                   },
                   child: const Text("Get Medicines")),
               Expanded(
@@ -62,10 +63,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   );
                 },
                 renderSuccess: ({data}) {
+                  //print(homeScreenLogic.reminderList.length);
                   return ListView.builder(
                     itemCount: homeScreenLogic.reminderList.length,
                     itemBuilder: (context, index) {
-                      return Text(homeScreenLogic.reminderList[index].name!);
+                      return ListTile(
+                        title: Text(homeScreenLogic.reminderList[index].name!),
+                        subtitle: Row(children: [
+                          Text(Utilities.formatDate(
+                              homeScreenLogic.reminderList[index].dateTime!)),
+                        ]),
+                      );
                     },
                   );
                 },
@@ -77,7 +85,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AddMedicineScreen(),
+                      builder: (context) => const AddMedicineScreen(),
                     ));
               },
               label: const Text("Add Medicine")),

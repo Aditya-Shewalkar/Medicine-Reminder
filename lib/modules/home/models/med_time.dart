@@ -11,7 +11,7 @@ class MedTime {
   int? id;
   DateTime? dateTime;
   int? fk;
-  MedTime({this.id, required this.dateTime, required this.fk});
+  MedTime({this.id, required this.dateTime, this.fk});
 
   Map<String, Object?> toJson() => {
         MedTimeFields.id: id,

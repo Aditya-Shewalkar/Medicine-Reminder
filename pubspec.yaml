@@ -37,6 +37,7 @@ dependencies:
   retrofit:
   shimmer:
   intl:
+  lazy_load_scrollview:
   table_calendar:
   async_loader:
     git:
