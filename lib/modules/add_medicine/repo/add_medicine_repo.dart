@@ -25,6 +25,27 @@ class AddMedicineRepo extends ChangeNotifier {
   ];
   String selectedMedType = "Capsules";
 
+  getImage(String type) {
+    if (type == "Pills") {
+      return Images.pillsImage;
+    }
+    if (type == "Capsules") {
+      return Images.capsulesImage;
+    }
+    if (type == "Cream") {
+      return Images.creamImage;
+    }
+    if (type == "Drops") {
+      return Images.dropsImage;
+    }
+    if (type == "Syringe") {
+      return Images.syringeImage;
+    }
+    if (type == "Syrup") {
+      return Images.syrupImage;
+    }
+  }
+
   changeMedType(newVal) {
     selectedMedType = newVal;
     notifyListeners();

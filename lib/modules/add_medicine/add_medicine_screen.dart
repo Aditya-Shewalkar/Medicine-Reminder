@@ -5,7 +5,6 @@ import 'package:medicine_reminder/constants/colors.dart';
 import 'package:medicine_reminder/modules/home/models/med_time.dart';
 import 'package:medicine_reminder/modules/home/models/medicine.dart';
 import 'package:medicine_reminder/riverpod/riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:medicine_reminder/utils/utils.dart';
 
 class AddMedicineScreen extends StatefulWidget {
@@ -21,7 +20,9 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
     return Consumer(
       builder: (BuildContext context, WidgetRef ref, Widget? child) {
         final addMedLogic = ref.watch(addMedicineProvider);
+        final homeScreenLogic = ref.watch(homeScreenProvider);
         return Scaffold(
+          resizeToAvoidBottomInset: false,
           appBar: AppBar(
             title: const Text(
               "Add Medicine",
@@ -29,7 +30,7 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
             ),
           ),
           bottomNavigationBar: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 Medicine m1 = Medicine(
                     name: addMedLogic.medNameController.text.trim(),
                     type: addMedLogic.selectedMedType,
@@ -43,7 +44,10 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
                       addMedLogic.pickedTime!.hour,
                       addMedLogic.pickedTime!.minute),
                 );
-                addMedLogic.createReminder(m1, mt1);
+                await addMedLogic.createReminder(m1, mt1);
+                await homeScreenLogic.getMedDetails(
+                    DateTime.now(), DateTime.now());
+                if (context.mounted) Navigator.pop(context);
               },
               child: const Padding(
                 padding: EdgeInsets.all(8.0),

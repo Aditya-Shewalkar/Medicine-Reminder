@@ -19,39 +19,42 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
-  void didChangeDependencies() async {
+  /*void didChangeDependencies() async {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     final homeScreenLogic = ref.watch(homeScreenProvider);
     await homeScreenLogic.getMedDetails();
-  }
+  }*/
 
   Widget build(BuildContext context) {
-    print("here2");
     return Consumer(
       builder: (BuildContext context, WidgetRef ref, Widget? child) {
         final homeScreenLogic = ref.watch(homeScreenProvider);
+        final addMedLogic = ref.watch(addMedicineProvider);
         return Scaffold(
           body: SafeArea(
               child: Column(
             children: [
               TableCalendar(
+                onDaySelected: (selected, focused) async {
+                  homeScreenLogic.changeFocusedDay(selected);
+                  focused = selected;
+                  await homeScreenLogic.getMedDetails(selected, focused);
+                },
                 firstDay: DateTime.utc(2010, 10, 16),
                 lastDay: DateTime.utc(2030, 3, 14),
-                focusedDay: DateTime.now(),
+                focusedDay: homeScreenLogic.focusedDay,
                 calendarFormat: homeScreenLogic.calendarFormat,
                 onFormatChanged: (format) {
                   homeScreenLogic.changeFormat(format);
                 },
               ),
-              ElevatedButton(
-                  onPressed: () async {
-                    await homeScreenLogic.getMedDetails();
-                  },
-                  child: const Text("Get Medicines")),
               Expanded(
                   child: AsyncLoader(
-                initState: () async => {await homeScreenLogic.getMedDetails()},
+                initState: () async => {
+                  await homeScreenLogic.getMedDetails(
+                      DateTime.now(), DateTime.now())
+                },
                 renderError: ([error]) {
                   return Center(
                     child: Text(error.toString()),
@@ -64,17 +67,70 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 },
                 renderSuccess: ({data}) {
                   //print(homeScreenLogic.reminderList.length);
-                  return ListView.builder(
-                    itemCount: homeScreenLogic.reminderList.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(homeScreenLogic.reminderList[index].name!),
-                        subtitle: Row(children: [
-                          Text(Utilities.formatDate(
-                              homeScreenLogic.reminderList[index].dateTime!)),
-                        ]),
-                      );
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      await homeScreenLogic.getMedDetails(
+                          homeScreenLogic.focusedDay,
+                          homeScreenLogic.focusedDay);
                     },
+                    child: ListView.builder(
+                      itemCount: homeScreenLogic.reminderList.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 5, vertical: 5),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: AppColor.secondaryColor),
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: ListTile(
+                                leading: SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.2,
+                                  child: Image(
+                                    fit: BoxFit.scaleDown,
+                                    image: AssetImage(addMedLogic.getImage(
+                                        homeScreenLogic
+                                            .reminderList[index].type!)),
+                                  ),
+                                ),
+                                title: Text(
+                                    homeScreenLogic.reminderList[index].name!),
+                                subtitle: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Text(Utilities.formatDate(homeScreenLogic
+                                          .reminderList[index].dateTime!)),
+                                      const SizedBox(
+                                        width: 20,
+                                      ),
+                                      Text(Utilities.formatTime(TimeOfDay(
+                                          hour: homeScreenLogic
+                                              .reminderList[index]
+                                              .dateTime!
+                                              .hour,
+                                          minute: homeScreenLogic
+                                              .reminderList[index]
+                                              .dateTime!
+                                              .minute)))
+                                    ]),
+                                trailing: Text.rich(
+                                    textAlign: TextAlign.center,
+                                    TextSpan(
+                                        text:
+                                            "${homeScreenLogic.reminderList[index].quantity}\n",
+                                        children: const [
+                                          TextSpan(text: "drops"),
+                                        ])),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   );
                 },
               ))
