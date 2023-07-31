@@ -57,7 +57,7 @@ class AddMedicineRepo extends ChangeNotifier {
   }
 
   createReminder(Medicine m1, MedTime mt1) async {
-    await MedicineDatabase.instance.create(m1, mt1);
+    await MedicineDatabase.instance.create(m1, mt1, sliderValue);
     notifyListeners();
   }
 

@@ -9,6 +9,14 @@ class HomeScreenRepo extends ChangeNotifier {
   DateTime focusedDay = DateTime.now();
   List<ResultModel> reminderList = <ResultModel>[];
 
+  Map<String, String> typeMap = <String, String>{
+    "Capsules": "pills",
+    "Cream": "mg",
+    "Drops": "ml",
+    "Pills": "pills",
+    "Syringe": "ml",
+  };
+
   changeFormat(format) {
     calendarFormat = format;
     notifyListeners();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
+import 'package:medicine_reminder/api/notifications.dart';
 import 'package:medicine_reminder/constants/colors.dart';
 import 'package:medicine_reminder/modules/home/models/med_time.dart';
 import 'package:medicine_reminder/modules/home/models/medicine.dart';
@@ -16,6 +17,12 @@ class AddMedicineScreen extends StatefulWidget {
 
 class _AddMedicineScreenState extends State<AddMedicineScreen> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Notificationapi.init();
+  }
+
   Widget build(BuildContext context) {
     return Consumer(
       builder: (BuildContext context, WidgetRef ref, Widget? child) {
@@ -31,23 +38,20 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
           ),
           bottomNavigationBar: ElevatedButton(
               onPressed: () async {
-                double n = addMedLogic.sliderValue;
-                for (int i = 0; i < n; i++) {
-                  Medicine m1 = Medicine(
-                      name: addMedLogic.medNameController.text.trim(),
-                      type: addMedLogic.selectedMedType,
-                      quantity: int.tryParse(
-                          addMedLogic.medAmountController.text.trim()));
-                  MedTime mt1 = MedTime(
-                    dateTime: DateTime(
-                        addMedLogic.pickedDate!.year,
-                        addMedLogic.pickedDate!.month,
-                        addMedLogic.pickedDate!.day,
-                        addMedLogic.pickedTime!.hour,
-                        addMedLogic.pickedTime!.minute),
-                  );
-                  await addMedLogic.createReminder(m1, mt1);
-                }
+                Medicine m1 = Medicine(
+                    name: addMedLogic.medNameController.text.trim(),
+                    type: addMedLogic.selectedMedType,
+                    quantity: int.tryParse(
+                        addMedLogic.medAmountController.text.trim()));
+                MedTime mt1 = MedTime(
+                  dateTime: DateTime(
+                      addMedLogic.pickedDate!.year,
+                      addMedLogic.pickedDate!.month,
+                      addMedLogic.pickedDate!.day,
+                      addMedLogic.pickedTime!.hour,
+                      addMedLogic.pickedTime!.minute),
+                );
+                await addMedLogic.createReminder(m1, mt1);
                 await homeScreenLogic.getMedDetails(DateTime.now());
                 if (context.mounted) Navigator.pop(context);
               },

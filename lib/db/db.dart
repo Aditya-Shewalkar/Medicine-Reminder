@@ -1,6 +1,11 @@
 // ignore: depend_on_referenced_packages
+import 'package:flutter/material.dart';
+import 'package:medicine_reminder/api/notifications.dart';
 import 'package:medicine_reminder/modules/home/models/med_time.dart';
 import 'package:medicine_reminder/modules/home/models/result_model.dart';
+import 'package:medicine_reminder/utils/utils.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import '../modules/home/models/medicine.dart';
@@ -48,11 +53,23 @@ class MedicineDatabase {
 ''');
   }
 
-  Future<void> create(Medicine medicine, MedTime medTime) async {
+  Future<void> create(Medicine medicine, MedTime medTime, double n) async {
     final db = await instance.getDatabase();
     final idMed = await db.insert(medicineTable, medicine.toJson());
     medTime.fk = idMed;
-    final idTime = await db.insert(medTimeTable, medTime.toJson());
+    for (int i = 1; i <= n; i++) {
+      tz.initializeTimeZones();
+      tz.setLocalLocation(tz.getLocation('Europe/Warsaw'));
+      final idTime = await db.insert(medTimeTable, medTime.toJson());
+      Notificationapi.showScheduledNotification(
+          id: Notificationapi.notifyId++,
+          title: medicine.name,
+          body: medTime.dateTime.toString(),
+          scheduledDate: medTime.dateTime!,
+          payload: "Medicine Reminder!!!!");
+      medTime.dateTime = medTime.dateTime!.add(const Duration(days: 1));
+      print(medTime.dateTime);
+    }
     print("db created");
   }
 

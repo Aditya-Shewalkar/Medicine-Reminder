@@ -39,6 +39,8 @@ dependencies:
   intl:
   lazy_load_scrollview:
   table_calendar:
+  rxdart:
+  flutter_local_notifications:
   async_loader:
     git:
       url: https://github.com/venkateshavenki/async_loader

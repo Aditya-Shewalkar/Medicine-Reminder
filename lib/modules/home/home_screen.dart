@@ -119,8 +119,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     TextSpan(
                                         text:
                                             "${homeScreenLogic.reminderList[index].quantity}\n",
-                                        children: const [
-                                          TextSpan(text: "drops"),
+                                        children: [
+                                          TextSpan(
+                                              text: homeScreenLogic.typeMap[
+                                                  homeScreenLogic
+                                                      .reminderList[index]
+                                                      .type]),
                                         ])),
                               ),
                             ),
