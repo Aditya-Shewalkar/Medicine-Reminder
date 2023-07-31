@@ -14,15 +14,16 @@ class HomeScreenRepo extends ChangeNotifier {
     notifyListeners();
   }
 
-  changeFocusedDay(DateTime selected) {
+  changeFocusedDay(DateTime selected, DateTime focused) async {
     print(selected);
     print(focusedDay);
     focusedDay = selected;
+    await getMedDetails(selected);
     print(focusedDay);
     notifyListeners();
   }
 
-  getMedDetails(DateTime selected, DateTime focused) async {
+  getMedDetails(DateTime selected) async {
     reminderList = await MedicineDatabase.instance.getListOfMeds();
     //print(selected);
     //print(focused);

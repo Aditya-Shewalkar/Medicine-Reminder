@@ -36,14 +36,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: Column(
             children: [
               TableCalendar(
-                onDaySelected: (selected, focused) async {
-                  homeScreenLogic.changeFocusedDay(selected);
-                  focused = selected;
-                  await homeScreenLogic.getMedDetails(selected, focused);
-                },
-                firstDay: DateTime.utc(2010, 10, 16),
+                onDaySelected: homeScreenLogic.changeFocusedDay,
+                firstDay: DateTime.now(),
+                currentDay: DateTime.now(),
                 lastDay: DateTime.utc(2030, 3, 14),
-                focusedDay: homeScreenLogic.focusedDay,
+                focusedDay: DateTime.now(),
+                selectedDayPredicate: (day) =>
+                    isSameDay(homeScreenLogic.focusedDay, day),
                 calendarFormat: homeScreenLogic.calendarFormat,
                 onFormatChanged: (format) {
                   homeScreenLogic.changeFormat(format);
@@ -51,10 +50,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               Expanded(
                   child: AsyncLoader(
-                initState: () async => {
-                  await homeScreenLogic.getMedDetails(
-                      DateTime.now(), DateTime.now())
-                },
+                initState: () async =>
+                    {await homeScreenLogic.getMedDetails(DateTime.now())},
                 renderError: ([error]) {
                   return Center(
                     child: Text(error.toString()),
@@ -70,8 +67,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   return RefreshIndicator(
                     onRefresh: () async {
                       await homeScreenLogic.getMedDetails(
-                          homeScreenLogic.focusedDay,
-                          homeScreenLogic.focusedDay);
+                        homeScreenLogic.focusedDay,
+                      );
                     },
                     child: ListView.builder(
                       itemCount: homeScreenLogic.reminderList.length,

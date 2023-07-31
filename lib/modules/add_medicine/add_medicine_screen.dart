@@ -31,22 +31,24 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
           ),
           bottomNavigationBar: ElevatedButton(
               onPressed: () async {
-                Medicine m1 = Medicine(
-                    name: addMedLogic.medNameController.text.trim(),
-                    type: addMedLogic.selectedMedType,
-                    quantity: int.tryParse(
-                        addMedLogic.medAmountController.text.trim()));
-                MedTime mt1 = MedTime(
-                  dateTime: DateTime(
-                      addMedLogic.pickedDate!.year,
-                      addMedLogic.pickedDate!.month,
-                      addMedLogic.pickedDate!.day,
-                      addMedLogic.pickedTime!.hour,
-                      addMedLogic.pickedTime!.minute),
-                );
-                await addMedLogic.createReminder(m1, mt1);
-                await homeScreenLogic.getMedDetails(
-                    DateTime.now(), DateTime.now());
+                double n = addMedLogic.sliderValue;
+                for (int i = 0; i < n; i++) {
+                  Medicine m1 = Medicine(
+                      name: addMedLogic.medNameController.text.trim(),
+                      type: addMedLogic.selectedMedType,
+                      quantity: int.tryParse(
+                          addMedLogic.medAmountController.text.trim()));
+                  MedTime mt1 = MedTime(
+                    dateTime: DateTime(
+                        addMedLogic.pickedDate!.year,
+                        addMedLogic.pickedDate!.month,
+                        addMedLogic.pickedDate!.day,
+                        addMedLogic.pickedTime!.hour,
+                        addMedLogic.pickedTime!.minute),
+                  );
+                  await addMedLogic.createReminder(m1, mt1);
+                }
+                await homeScreenLogic.getMedDetails(DateTime.now());
                 if (context.mounted) Navigator.pop(context);
               },
               child: const Padding(
